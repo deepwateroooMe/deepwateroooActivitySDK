@@ -1,0 +1,7 @@
+#+latex_class: cn-article
+#+title: Unity Export 导出到Android Studio再打包大致过程原理
+#+author: deepwaterooo 
+
+* a few java class design for Android SDK + Unity interaction
+- Initial design, to be modified and linked later after android SDK is ready. 
+- Will work on packing lower layer Android SDK feature/functionality packing for coming a few days
