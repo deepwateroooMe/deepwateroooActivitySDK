@@ -1,30 +1,5 @@
-// plugins {
-//     id 'com.android.application' version '7.3.1' apply false
-//     id 'com.android.library' version '7.3.1' apply false
-// }
-
-allprojects {
-    buildscript {
-        repositories {
-            google()
-            jcenter()
-        }
-
-// 因为我用unity gradle 是 6.1.1,我把这里改一下,然后所有需要的资源需要打包 爱表哥,爱生活!!!        
-        dependencies {
-            classpath 'com.android.tools.build:gradle:7.2.2'
-        }
-    }
-
-    repositories {
-        google()
-        jcenter()
-        flatDir {
-            dirs "${project(':dwsdk').projectDir}/libs"
-        }
-    }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+plugins {
+    id 'com.android.application' version '7.0.0' apply false
+    id 'com.android.library' version '7.0.0' apply false
 }

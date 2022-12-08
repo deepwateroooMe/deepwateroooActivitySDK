@@ -1,240 +1,85 @@
-package com.deepwaterooo;
+package com.deepwaterooo;// 因为你还会有个真正的小SDK,这里主要方便同一个大包裹下能够找到类 ?
 
+import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.deepwaterooo.DWSDK;
-import com.squarepanda.sdk.activities.bluetooth.BluetoothBaseActivity;
-import com.squarepanda.sdk.beans.PlayerDO;
-import com.squarepanda.sdk.utils.PlayerUtil;
+import com.deepwaterooo.dwsdk.R;
 import com.unity3d.player.UnityPlayer;
+import com.unity3d.player.UnityPlayerActivity;
 
-// public class DWUnityActivity extends BluetoothBaseActivity {
-public class DWUnityActivity extends AppCompatActivity {
-    public static final String TAG = "DWUnityActivity";
+// 安卓SDK与unity游戏端最底层的双向桥接层:
+    // DWUnityActivity: 主要负责安卓SDK端调用游戏底层桥接方法,实现安卓端向游戏端的调用
+    // 同时,实现游戏活动 与 安卓活动的无缝无按钮切换
+// DWUnityActivity: extends UnityPlayerActivity或者自定义,都没有关系,主要逻辑要连通  // <<<<<<<<<< 这里可能说得不对
+// 这个类有个更大的作用是把安卓SDK中的安卓活动,转化为游戏端的活动, 所以需要再模仿这个例子实现一遍
 
-    // private static BluetoothBaseActivity _instance;
+public class DWUnityActivity extends UnityPlayerActivity { // 有个bug: 找不到DWSDK,换另一种方法试
+// public class DWUnityActivity extends AppCompatActivity { // 感觉这里面有什么地方没有适配好,无法实例化启动程序
+    private final String TAG = "DWUnityActivity";
 
-    public static UnityPlayer mUnityPlayer;
-    public static DWUnityActivity instance;
-
-    private boolean _isScreenLocked;
-    private boolean _fromBackground;
-
-    public DWUnityActivity() {
-        _isScreenLocked = false;
-        _fromBackground = false;
-    }
-    protected void onCreate(Bundle savedInstanceState) {
-        _isScreenLocked = false;
-        requestWindowFeature(1);
-        super.onCreate(savedInstanceState);
-        if (mUnityPlayer == null) {
-            getWindow().setFormat(2);
-            mUnityPlayer = new UnityPlayer(this);
-            instance = this;
-        } else {
-            ((ViewGroup)mUnityPlayer.getParent()).removeView(mUnityPlayer);
-            UnityPlayer.currentActivity = this;
-            instance = (DWUnityActivity)UnityPlayer.currentActivity;
-        }
-        setContentView(mUnityPlayer);
-        mUnityPlayer.requestFocus();
-    }
-    protected void onDestroy() {
-        mUnityPlayer.quit();
-        super.onDestroy();
-    }
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == 1005)
-            DWSDK.SendUnityMessage("UnlockPermissionResponse", "1");
-        else if (resultCode == 1007)
-            DWSDK.SendUnityMessage("UnlockPermissionResponse", "0");
-    }
-    protected void onSuccessLogoutEvent() {
-        DWSDK.SendUnityMessage("SuccessLogout", "1");
-    }
-    protected void onPause() {
-        super.onPause();
-        mUnityPlayer.pause();
-    }
-    protected void onResume() {
-        super.onResume();
-        mUnityPlayer.resume();
-        if(!_isScreenLocked) {
-            if(_fromBackground) {
-                if(DWSDK.IsLoggedIn())
-                    PlayerUtil.startSelectPlayerActivity(instance, true, 1);
-                _fromBackground = false;
-            }
-        } else {
-            _isScreenLocked = false;
-        }
-    }
-    public void gamePaused(boolean b) {
-        DWSDK.SendUnityMessage("_onSDKScreenOpen", "");
-        _isScreenLocked = b;
-        _fromBackground = true;
-    }
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mUnityPlayer.configurationChanged(newConfig);
-    }
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        mUnityPlayer.windowFocusChanged(hasFocus);
-    }
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        if(event.getAction() == 2)
-            return mUnityPlayer.injectEvent(event);
-        else
-            return super.dispatchKeyEvent(event);
-    }
-
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        return mUnityPlayer.injectEvent(event);
-    }
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        return mUnityPlayer.injectEvent(event);
-    }
-    public boolean onTouchEvent(MotionEvent event) {
-        return mUnityPlayer.injectEvent(event);
-    }
-    public boolean onGenericMotionEvent(MotionEvent event) {
-        return mUnityPlayer.injectEvent(event);
-    }
-    public void batteryLevel(String s) {
-        DWSDK.SendUnityMessage("_onBatteryLevel", s);
-    }
-    public void availableServices() {
-    }
-    public void firmwareUpdateStatus(int i) {
-    }
-    protected void didNavigatesToMainMenu() {
-        DWSDK.SendUnityMessage("_onSDKScreenClose", "");
-    }
-    public void didFinishSdkUserConfiguration() {
-        DWSDK.SendUnityMessage("OnZPadFinishSDKUserConfig", "");
-    }
-    public void didfinishSDKscreenflow() {
-        DWSDK.SendUnityMessage("_onSDKReady", "");
-    }
-}
-// public class DWUnityActivity extends AppCompatActivity {
-//     private final String TAG = "DWUnityActivity";
-
+    // public static UnityPlayer mUnityPlayer;
+    // public static DWUnityActivity instance; // 相当于是单例模式
+    // // 自身的引用:
+    // public static Activity mActivity;
     
-// // 这是继续练习 回 字的四样写法,........    
-//     public static UnityPlayer mUnityPlayer; // <<<<<<<<<<<<<<<<<<<< mUnityPlayer UnityPlayerActivity
-//     public static DWUnityActivity instance; // <<<<<<<<<< 相当于是,unity游戏端的实例 reference
-
-//     public DWUnityActivity() {}
-
-//     protected void onCreate(Bundle savedInstanceState) { // 这里是需要理解得最透彻的,我觉得
+    @Override
+    protected void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
+        setContentView(R.layout.activity_unity);
+// 想要加载的游戏界面的布局: 可以游戏的过程中动态添加
+        LinearLayout ll_unity_container = (LinearLayout) findViewById(R.id.ll_unity_container);
+// 说的是:基类的静态成员变量,但是它是可以拿到视图显示的,它拿到的应该是游戏端的视图,嵌套在安卓界面中(一个按钮)       
+        View unity_view = mUnityPlayer.getView(); // <<<<<<<<<<<<<<<<<<<< 感觉这里可能就是那个前不着村后不着店的死槛
+        ll_unity_container.addView(unity_view);
+//        mActivity = this;
+        
+// // 手动适配 UnityPlayer 显示示图的过程        
 //         requestWindowFeature(1);
-//         super.onCreate(savedInstanceState);
+//         super.onCreate(bundle);
 //         if (mUnityPlayer == null) {
 //             getWindow().setFormat(2);
-//             mUnityPlayer = new UnityPlayer(this); // <<<<<<<<<< 
+//             mUnityPlayer = new UnityPlayer(this);
 //             instance = this;
 //         } else {
 //             ((ViewGroup)mUnityPlayer.getParent()).removeView(mUnityPlayer);
 //             UnityPlayer.currentActivity = this;
 //             instance = (DWUnityActivity)UnityPlayer.currentActivity;
 //         }
-//         setContentView(mUnityPlayer); // <<<<<<<<<< 就是,游戏界面在安卓端的实现,就是这个样子的了 ?
+//         setContentView(mUnityPlayer); // 这里直接设置成游戏或是安卓视图,不再两端各带一个按钮
 //         mUnityPlayer.requestFocus();
-//     }
-//     protected void onDestroy() {
-//         mUnityPlayer.quit(); // <<<<<<<<<< 
-//         super.onDestroy();
-//     }
+// //         setContentView(R.layout.activity_unity);
+// // // 想要加载的游戏界面的布局: 可以游戏的过程中动态添加
+// //         LinearLayout ll_unity_container = (LinearLayout) findViewById(R.id.ll_unity_container);
+// // // 说的是:基类的静态成员变量,但是它是可以拿到视图显示的,它拿到的应该是游戏端的视图,嵌套在安卓界面中(一个按钮)       
+// //         View unity_view = mUnityPlayer.getView(); // <<<<<<<<<<<<<<<<<<<< 感觉这里可能就是那个前不着村后不着店的死槛
+// //         ll_unity_container.addView(unity_view);
+    }
 
-// // // 安卓SDK调用unity中的方法: 现在是没有搞明白,为什么安卓SDK中就可以这么调用unity游戏端的这些私有方法
-// //     public void batteryLevel(String s) {
-// //         DWSDK.SendUnityMessage("_onBatteryLevel", s);
-// //     }
-// //     public void availableServices() {}
-// //     protected void didNavigatesToMainMenu() { // 为什么会需要使用这个方法 ?
-// //         DWSDK.SendUnityMessage("_onSDKScreenClose", "");
-// //     }
-// //     public void didFinishSdkUserConfiguration() {
-// //         DWSDK.SendUnityMessage("OnZPadFinishSDKUserConfig", "");
-// //     }
-// //     public void didfinishSDKscreenflow() {
-// //         DWSDK.SendUnityMessage("_onSDKReady", "");
-// //     }
-// //     public void didSelectedChild(PlayerDO player) { // 这里,我大概可以改装一个 onUserLogin之类的回调给游戏端
-// //         PlayerUtil.setSelectedPlayer(instance, player);
-// //         DWSDK.SendUnityMessage("_onProfileSelected", "");
-// //         DWSDK.SendUnityMessage("_onSDKScreenClose", "");
-// //     }
-//     protected void onPause() {
-//         super.onPause();
-//         mUnityPlayer.pause();
-//     }
-//     protected void onResume() {
-//         super.onResume();
-//         mUnityPlayer.resume();
-//     }
-//     public void gamePaused(boolean b) { 
-//         DWSDK.SendUnityMessage("_onSDKScreenOpen", ""); // 安卓SDK调用unity中的方法, 使安卓与游戏两端可以无缝衔接 ?    
-//     }
+    public void click(View view){
+        Log.d(TAG, "click() ");
+        callMainActivity();
+    }
 
-    
-// // 这个方法不管用    
-//     private Activity _unityActivity; 
-//     Activity getActivity() {
-//         if (_unityActivity == null) {
-//             try {
-//                 Class<?> classtype = Class.forName("com.unity3d.player.UnityPlayer");
-//                 Activity activity = (Activity) classtype.getDeclaredField("currentActivity").get(classtype);
-//                 _unityActivity = activity;
-//             } catch (ClassNotFoundException e) {
-     
-//             } catch (IllegalAccessException e) {
-     
-//             } catch (NoSuchFieldException e) {
-     
-//             }
-//         }
-//         return _unityActivity;
-//     }
-     
-//     boolean callUnity(String gameObjectName, String functionName, String args){
-//         Log.d(TAG, "callUnity() ");
-//         try {
-//             Class<?> classtype = Class.forName("com.unity3d.player.UnityPlayer");
-//             Method method =classtype.getMethod("UnitySendMessage", String.class,String.class,String.class);
-//             method.invoke(classtype,gameObjectName,functionName,args);
-//             return true;
-//         } catch (ClassNotFoundException e) {
-     
-//         } catch (NoSuchMethodException e) {
-     
-//         } catch (IllegalAccessException e) {
-     
-//         } catch (InvocationTargetException e) {
-     
-//         }
-//         return false;
-//     }
-     
-//     public boolean showToast(String content){
-//         Log.d(TAG, "showToast() content: " + content);
-//         Toast.makeText(getActivity(),content,Toast.LENGTH_SHORT).show();
-//         // 这里是主动调用Unity中的方法，该方法之后unity部分会讲到
-//         callUnity("Main Camera","FromAndroid", "hello unity, i'm android");
-//         return true;
-//     }
-// }
+    @Override
+    public boolean onKeyDown(int i, KeyEvent keyEvent) {
+        // 添加返回键返回 MainActivity
+        if (i == KeyEvent.KEYCODE_BACK){
+            callMainActivity();
+        }
+        return super.onKeyDown(i, keyEvent);
+    }
 
-// tac log1.log | awk '!flag; /FATAL EXCEPTION: main/{flag = 1};' | tac > cur.log
-// tac log1.log | awk '!flag; /08:54:00.00/{flag = 1};' | tac > cur.log
+    private void callMainActivity(){
+        Log.d(TAG, "callMainActivity() ");
+        Intent intent = new Intent(this, com.deepwaterooo.DWSDK.class);
+        startActivity(intent);
+        finish();
+    }
+}

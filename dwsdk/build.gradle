@@ -1,16 +1,18 @@
-apply plugin: 'com.android.library'
+plugins {
+    id 'com.android.library' // <<<<<<<<<<<<<<<<<<<< 可以直接把app 改成早类库就可以了,不同再导一个
+}
 
 android {
-    namespace 'com.deepwaterooo.dwsdk'
-    compileSdk 32
-    buildToolsVersion "22.0.0"
+    namespace 'com.deepwaterooo.dwsdk' // <<<<<<<<<<<<<<<<<<<< 这个需要
+    compileSdk 25
 
     defaultConfig {
-        minSdk 17
-        //noinspection ExpiredTargetSdkVersion
-        targetSdk 32
+        minSdk 25
+        targetSdk 25
         versionCode 1
         versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -19,72 +21,40 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    lintOptions {
-        abortOnError false
-    }
-    packagingOptions {
-        exclude 'lib/arm64-v8a/libjniPdfium.so'
-        exclude 'lib/arm64-v8a/libmodpdfium.so'
-        exclude 'lib/armeabi/libjniPdfium.so'
-        exclude 'lib/armeabi/libmodpdfium.so'
-        exclude 'lib/mips/libjniPdfium.so'
-        exclude 'lib/mips/libmodpdfium.so'
-        exclude 'lib/x86_64/libjniPdfium.so'
-        exclude 'lib/x86_64/libmodpdfium.so'
-    }
-    
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
 }
-// allprojects {
-//     repositories {
-//         jcenter()
-//         flatDir {
-//             dirs 'libs'
-//         }
-//     }
-// }
-
-afterEvaluate {
-    generateReleaseBuildConfig.enabled = false
-    generateDebugBuildConfig.enabled =false
-}
-
-def jarName = 'deepwaterooo_activity.jar'
-task deleteOldJar(type: Delete){
-    //delete 'release/NativePermissions.jar'
-    //delete "${project.buildDir}/release/" + jarName
-    delete 'build/outputs/' + jarName
-}
-task exportJar(type: Copy){
-    //from("${project.buildDir}/intermediates/bundles/release/")
-    //into("${project.buildDir}/release/")
-    from('build/intermediates/aar_main_jar/debug/')
-    into('build/outputs/')
-    include('classes.jar')
-    rename('classes.jar', jarName)
-}
-// task copyLibs(type: Copy) {
-//     // 下面的这一行搞不懂是什么意思,怎么配置的
-//     from configurations.compile
-//     into 'libs-cached'
-// }
-exportJar.dependsOn(deleteOldJar, build)
-// exportJar.dependsOn(copyLibs, build)
 
 dependencies {
-    compileOnly files('libs\\classes.jar')
-    compileOnly (name: 'SquarePanda', ext: 'aar')
+    compileOnly files('libs\\classes.jar') // <<<<<<<<<<<<<<<<<<<< Unity里的这些类是分Mono il2cpp的,要区分
+    // implementation 'androidx.appcompat:appcompat:1.5.1'
+    // implementation 'com.google.android.material:material:1.7.0'
+    // implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
-// 不要用复杂的,因为转到unity里面会需要把这些一个个下载下来太麻烦了,就暂时先用旧版本测试    
-    implementation 'androidx.appcompat:appcompat:1.5.1' // 1.5.1
-    implementation 'com.google.android.material:material:1.7.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    // for api version 25
+    implementation 'com.android.support:appcompat-v7:25.0.0'
+    // implementation 'com.squareup.retrofit2:retrofit:2.2.0'
+    // implementation 'com.google.code.gson:gson:2.6.2'
+    // implementation 'com.squareup.retrofit2:converter-gson:2.0.2'
+    // implementation 'com.squareup.okhttp3:logging-interceptor:3.3.1'
 
+    
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
 }
 
+// 狠奇怪:它为什么会时灵时不灵的,我感觉自己什么也没有动,它今天就可以打包打成功了
+def jarName = 'deepwaterooo_activity.jar'
+task deleteOldJar(type: Delete){
+    delete 'build/outputs/' + jarName
+}
+task exportJar(type: Copy){
+    from('build/intermediates/aar_main_jar/debug/')
+    into('build/outputs/')
+    include('classes.jar')
+    rename('classes.jar', jarName)
+}
+exportJar.dependsOn(deleteOldJar, build)

@@ -1,11 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
           package="com.deepwaterooo.dwsdk">
+  <!-- package="com.unity3d.player"> -->
 
-    <application
-        android:allowBackup="true"
-        android:label="@string/app_name"
-        android:supportsRtl="true">
+  
+  <!-- <!-\- 说是7.0之后,设置系统音量需要权限 -\-> -->
+  <!-- <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" /> -->
+<!-- 不知道下面这个是个什么权限,把游戏弄得乱七八糟的 -->
+<!--   <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" -->
+      <!-- tools:ignore="ProtectedPermissions" /> -->
 
-    </application>
+      
+  <!-- android:allowBackup="true" -->
+  <!-- android:dataExtractionRules="@xml/data_extraction_rules" -->
+  <!-- android:fullBackupContent="@xml/backup_rules" -->
+  <!-- android:icon="@mipmap/ic_launcher" -->
+  <!-- android:label="@string/app_name" -->
+  <!-- android:roundIcon="@mipmap/ic_launcher_round" -->
+  <!-- android:supportsRtl="true" -->
+  <!-- android:theme="@style/Theme.MyApplication" -->
+  <!-- tools:targetApi="31"> -->
+  <!-- android:theme="@style/Theme.MyApplication" -->
+  <!-- tools:replace="android:icon,android:allowBackup"> -->
+  <!-- tools:replace="android:icon,android:theme,android:allowBackup"> -->
+  <!-- android:theme="@style/Theme.AppCompat.DayNight" -->
+
+  <application
+      android:allowBackup="true"
+      android:label="@string/app_name"
+      android:icon="@mipmap/ic_launcher">
+    <!-- 这里想要申请的一个安卓活动,就变成为是起误导作用了 -->
+    <!-- <activity -->
+    <!--     android:name="com.deepwaterooo.DWSDK" -->
+    <!--     android:exported="true"> -->
+    <!--   <!-\- <intent-filter> -\-> -->
+    <!--   <!-\-   <action android:name="android.intent.action.MAIN" /> -\-> -->
+    <!--   <!-\-   <category android:name="android.intent.category.LAUNCHER" /> -\-> -->
+    <!--   <!-\- </intent-filter> -\-> -->
+    <!--   <!-\- <meta-data -\-> -->
+    <!--   <!-\-     android:name="unityplayer.UnityActivity" -\-> -->
+    <!--   <!-\-     android:value="true" /> -\-> -->
+    <!--   <meta-data -->
+    <!--       android:name="android.app.lib_name" -->
+    <!--       android:value="" /> -->
+    <!-- </activity> -->
+    <!-- <activity android:name="com.deepwaterooo.DWUnityActivity"></activity> -->
+  </application>
 </manifest>
